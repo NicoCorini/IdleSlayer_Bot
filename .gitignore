@@ -1,0 +1,28 @@
+# Cartelle di build
+[Bb]uild/
+[Dd]ebug/
+[Rr]elease/
+x64/
+x86/
+*.vcxproj.user
+*.suo
+*.ncb
+*.sdf
+*.ipch
+
+# File temporanei e di sistema
+*.obj
+*.pch
+*.idb
+*.pdb
+*.ipdb
+*.iobj
+*.log
+*.tlog
+*.lastbuildstate
+
+# File e cartelle di Visual Studio
+.vs/
+*.VC.db
+*.VC.opendb
+*.vcxproj.user
