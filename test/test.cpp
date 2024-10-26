@@ -103,6 +103,22 @@ void MoveMouseTo(int x, int y) {
     }
 }
 
+// Funzione per simulare lo scroll della rotellina del mouse
+void MouseWheelScroll(int scrollAmount) {
+
+    scrollAmount *= 120; // Converti il valore in "clicks" di rotellina del mouse
+
+    INPUT input = { 0 };
+    input.type = INPUT_MOUSE;
+    input.mi.dwFlags = MOUSEEVENTF_WHEEL;
+    input.mi.mouseData = scrollAmount;
+
+    UINT result = SendInput(1, &input, sizeof(INPUT));
+    if (result == 0) {
+        std::cerr << "SendInput failed with error: " << GetLastError() << std::endl;
+    }
+}
+
 // Funzione per ottenere le coordinate dei pixel con un colore specifico
 std::vector<POINT> GetColorCoordinates(int x1, int y1, int x2, int y2, COLORREF color) {
 
@@ -251,12 +267,105 @@ void coordinate() {
     }
 }
 
+void CollectMinion() {
+
+    // Stampa il messaggio di log con timestamp
+    std::cout << " Colleziono minion" << std::endl;
+
+    // Clicca sul bottone ascensione
+    mouseClick(0, 95, 90);
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+
+    // Clicca Ascension Tab
+    //
+    //mouseClick(0, 93, 680);
+    //std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    // Clicca sulla tab dell’albero di ascensione
+    //mouseClick(0, 193, 680);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    // ????? (Click sul punto specificato)
+    //mouseClick(0, 691, 680);
+    //std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    // Clicca sulla tab minion
+    mouseClick(0, 332, 680);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    MouseMove(498, 180);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    MouseWheelScroll(5);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+
+
+    // Finchè la scrollbar non è in fondo, scorro e vedo se il minion attuale ha tasto verde
+    //
+    while (!IsRectangleColor(612, 638, 612, 638, 0xffffff)) {
+
+        if (IsRectangleColor(498, 180, 498, 180, 0x22a310)) {
+            mouseClick(0, 498, 180, 2, 200);
+            std::cout << "Click primo minion" << std::endl;
+        }
+
+        MouseWheelScroll(-1);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+
+
+    std::cout << "Fine scrollbar, claimo ultimi minions" << std::endl;
+
+    mouseClick(0, 500, 244, 2, 200);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    mouseClick(0, 499, 397, 2, 200);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    mouseClick(0, 498, 547, 2, 200);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+
+    // Controlla se il bonus giornaliero è disponibile
+    if (IsRectangleColor(306, 186, 306, 186, 0xffffff)) {
+
+        // Clicca su "Claim All"
+        //mouseClick(0, 320, 280);
+        //std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        // Clicca su "Send All"
+        //mouseClick(0, 320, 280);
+        //std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+
+        // Richiedi il bonus giornaliero
+        mouseClick(0, 306, 186);
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+        std::cout << "Collezionati minion con Daily Bonus, ricontrollo se posso claimare" << std::endl;
+
+        CollectMinion();
+    }
+    else {
+        // Clicca "Exit"
+        mouseClick(0, 570, 694);
+    }
+
+    
+
+}
+
 int main() {
     idleSlayerHwnd = findGameWindow(); // Trova la finestra del gioco, cambia il nome se necessario
     if (idleSlayerHwnd == NULL) {
         std::cerr << "Impossibile trovare la finestra del gioco." << std::endl;
         return 1;
     }
+
+	//CollectMinion(); // Esegui la funzione per raccogliere i minion
+
+    
 
 	coordinate(); // Esegui la funzione per stampare le coordinate e il colore
 

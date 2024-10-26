@@ -25,7 +25,7 @@ struct Message {
 std::queue<Message> messageQueue;
 std::mutex mtx;
 std::condition_variable cv;
-std::atomic<bool> running(true);
+std::atomic<bool> botRunning(true);
 std::atomic<bool> paused(false);
 std::atomic<bool> jumpState(true);
 
@@ -43,7 +43,7 @@ void sendBoostInput();
 void mouseClick(int button, int x, int y, int clicks, int speed);
 void sendMessage(const std::string& type, int value);
 void readMessages();
-void actionsThread();
+void jumpBoostThread();
 void MouseMove(int x, int y);
 void MouseClickDrag(int x1, int y1, int x2, int y2);
 void MouseWheelScroll(int scrollAmount);
@@ -169,7 +169,7 @@ bool IsRectangleColor(int x1, int y1, int x2, int y2, COLORREF color, int tolera
 void sendShootInput() {
 
     // Stampa il messaggio di log con timestamp
-    std::cout << "[" << getCurrentTimestamp() << "] SPARO!" << std::endl;
+    //std::cout << "[" << getCurrentTimestamp() << "] SPARO!" << std::endl;
 
     INPUT input = { 0 };
     input.type = INPUT_MOUSE;
@@ -190,30 +190,25 @@ void sendJumpInput(int msLunghezzaSalto) {
     INPUT input = { 0 };
     input.type = INPUT_MOUSE;
     input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
-
     SendInput(1, &input, sizeof(INPUT));
 
-    // Attendi per la durata del salto
-    std::this_thread::sleep_for(std::chrono::milliseconds(msLunghezzaSalto));
+    // Tieni premuto per la durata del salto inviando MOUSEEVENTF_LEFTDOWN ripetutamente
+    auto start = std::chrono::steady_clock::now();
+    while (std::chrono::steady_clock::now() - start < std::chrono::milliseconds(msLunghezzaSalto)) {
+        input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+        SendInput(1, &input, sizeof(INPUT));
+        std::this_thread::sleep_for(std::chrono::milliseconds(5)); // intervallo di invio dell'input
+    }
 
     // Rilascia il tasto
     input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
     SendInput(1, &input, sizeof(INPUT));
 
-
-
-    // Per la durata del salto premi il mouse un numero umano di volte (spam)
-    for (int i = 0; i < 3; i += 1) {
-        sendShootInput();
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-    }
-
-
 }
 
 void sendBoostInput() {
 
-    std::cout << "[" << getCurrentTimestamp() << "] Boost attivato!" << std::endl;
+    //std::cout << "[" << getCurrentTimestamp() << "] Boost attivato!" << std::endl;
 
     INPUT input = { 0 };
     input.type = INPUT_MOUSE;
@@ -226,7 +221,7 @@ void sendBoostInput() {
 
 }
 
-void mouseClick(int button, int x, int y, int clicks = 1, int speed = 25) {
+void mouseClick(int button, int x, int y, int clicks = 1, int speed = 15) {
 
     RECT rect;
     if (GetWindowRect(idleSlayerHwnd, &rect)) {
@@ -290,7 +285,7 @@ void sendMessage(const std::string& type, int value) {
 }
 
 void readMessages() {
-    while (running) {
+    while (botRunning) {
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
         std::unique_lock<std::mutex> lock(mtx);
@@ -309,19 +304,29 @@ void readMessages() {
     }
 }
 
-void actionsThread() {
-    while (running) {
+void jumpBoostThread() {
+    while (botRunning) {
         if (!paused) {
             if (jumpState) {
                 // Simula il comando di salto e sparo
-                std::cout << "[" << getCurrentTimestamp() << "] Boost, Salto e Sparo" << std::endl;
+                //std::cout << "[" << getCurrentTimestamp() << "] Boost, Salto e Sparo" << std::endl;
 
                 // Mouse al centro
                 moveMouseToCenter();
 
                 // Invia il comando di boost, salto e sparo
                 sendBoostInput();
-                sendJumpInput(rand() % 500 + 50);
+                sendJumpInput(rand() % 100 + 1950);
+
+                // Per la durata del salto premi il mouse un numero umano di volte (spam)
+                for (int i = 0; i < 3; i += 1) {
+                    sendShootInput();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(50));
+                }
+
+                // Aspetta 5 secondi per prossimo salto
+                //
+				std::this_thread::sleep_for(std::chrono::milliseconds(5000));
 
             }
             else {
@@ -331,7 +336,6 @@ void actionsThread() {
         } 
     }
 }
-
 
 void MouseMove(int x, int y) {
 
@@ -639,6 +643,12 @@ void BuyEquipment() {
         // Stampa il messaggio di log con timestamp
         std::cout << "[" << getCurrentTimestamp() << "] Negozio Aperto" << std::endl;
 
+        // Clicco sulla scheda quest giusto per togliere il flash giallo se una è completa
+        // TODO: Implementare quest claiming
+        //
+        mouseClick(0, 1010, 684);
+        std::this_thread::sleep_for(std::chrono::milliseconds(50));
+
         // Clicca sulla scheda dell'armatura
         mouseClick(0, 850, 690);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
@@ -662,17 +672,17 @@ void BuyEquipment() {
             // Clicca in fondo alla barra di scorrimento
             mouseClick(0, 1254, 604);
             std::cout << "[" << getCurrentTimestamp() << "] Trovata barra di scorrimento, scorro in fondo" << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             // Compra l'ultimo oggetto
             mouseClick(0, 1200, 560);
             std::cout << "[" << getCurrentTimestamp() << "] Compro ultimo oggetto" << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(250));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             // Clicca in cima alla barra di scorrimento
             mouseClick(0, 1254, 170, 3);
             std::cout << "[" << getCurrentTimestamp() << "] Torno in alto" << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(200));
+            std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
         // Setto acquisto 50
@@ -687,12 +697,12 @@ void BuyEquipment() {
         while (true) {
             if (!IsRectangleColor(1160, 170, 1160, 170, 0x22a310, 9)) {
 
-                std::cout << "[" << getCurrentTimestamp() << "] No caselle verdi, scorro" << std::endl;
+                //std::cout << "[" << getCurrentTimestamp() << "] No caselle verdi, scorro" << std::endl;
 
                 // Se non ci sono, scorro verso il basso
 
                 MouseWheelScroll(-1);
-                std::this_thread::sleep_for(std::chrono::milliseconds(500));
+                std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
                 // Verifica se la barra di scorrimento non è grigia (fine dello scorrimento)
                 if (!IsRectangleColor(1253, 605, 1253, 605, 0xd6d6d6)) {
@@ -701,15 +711,15 @@ void BuyEquipment() {
                     
                     // Click sugli ultimi oggetti della pagina
                     //
-					mouseClick(0, 1190, 185);
-					std::this_thread::sleep_for(std::chrono::milliseconds(250));
-					mouseClick(0, 1190, 269);
-					std::this_thread::sleep_for(std::chrono::milliseconds(250));
-					mouseClick(0, 1190, 365);
-					std::this_thread::sleep_for(std::chrono::milliseconds(250));
-					mouseClick(0, 1190, 465);
-					std::this_thread::sleep_for(std::chrono::milliseconds(250));
-					mouseClick(0, 1190, 562);
+					mouseClick(0, 1190, 185, 5);
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+					mouseClick(0, 1190, 269, 5);
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+					mouseClick(0, 1190, 365, 5);
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+					mouseClick(0, 1190, 465, 5);
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+					mouseClick(0, 1190, 562, 5);
 
                     break; // Esce dal ciclo se non c'è più la barra di scorrimento
                 }
@@ -717,7 +727,7 @@ void BuyEquipment() {
             }
             else {
                 // Se trova una casella verde, clicca su di essa per comprare
-                mouseClick(0, 1160, 170);
+                mouseClick(0, 1160, 170, 5);
                 std::cout << "[" << getCurrentTimestamp() << "] Casella verde, compro oggetto" << std::endl;
             }
         }
@@ -739,7 +749,7 @@ void BuyUpgrade() {
 	// Premo su tab Upgrade
     //
     mouseClick(0, 927, 683);
-	std::this_thread::sleep_for(std::chrono::milliseconds(150));
+	std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     //Scrollo in alto
     //
@@ -748,7 +758,7 @@ void BuyUpgrade() {
         MouseWheelScroll(20);
     }
 
-    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
 	bool somethingBought = false;
     int y = 170;
@@ -804,61 +814,82 @@ void BuyUpgrade() {
 
 void CollectMinion() {
 
-	// Stampa il messaggio di log con timestamp
-	std::cout << "[" << getCurrentTimestamp() << "] Colleziono minion" << std::endl;
+    // Stampa il messaggio di log con timestamp
+    std::cout << "[" << getCurrentTimestamp() << "] Colleziono minion" << std::endl;
 
-	// Clicca sul bottone ascensione
-	mouseClick(0, 95, 90);
-	std::this_thread::sleep_for(std::chrono::milliseconds(400));
+    // Clicca sul bottone ascensione
+    mouseClick(0, 95, 90);
+    std::this_thread::sleep_for(std::chrono::milliseconds(400));
 
     // Clicca Ascension Tab
     //
-    //mouseClick(0, 93, 680);
-	//std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    // Clicca sulla tab dell’albero di ascensione
-    //mouseClick(0, 193, 680);
+    mouseClick(0, 93, 680);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    // ????? (Click sul punto specificato)
-    //mouseClick(0, 691, 680);
-    //std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
     // Clicca sulla tab minion
     mouseClick(0, 332, 680);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
+    MouseMove(498, 180);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    MouseWheelScroll(5);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+
+
+    // Finchè la scrollbar non è in fondo, scorro e vedo se il minion attuale ha tasto verde
+    //
+    while (!IsRectangleColor(612, 638, 612, 638, 0xffffff)) {
+
+        if (IsRectangleColor(498, 180, 498, 180, 0x22a310)) {
+            mouseClick(0, 498, 180, 2, 200);
+            std::cout << "[" << getCurrentTimestamp() << "] Click primo minion" << std::endl;
+        }
+
+        MouseWheelScroll(-1);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    }
+
+
+    std::cout << "Fine scrollbar, claimo ultimi minions" << std::endl;
+
+    mouseClick(0, 500, 244, 2, 200);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    mouseClick(0, 499, 397, 2, 200);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
+    mouseClick(0, 498, 547, 2, 200);
+    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
 
     // Controlla se il bonus giornaliero è disponibile
-    if (IsRectangleColor(370, 410, 910, 470, 0x11AA23, 9)) {
-        // Clicca su "Claim All"
-        mouseClick(0, 320, 280);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    if (IsRectangleColor(306, 186, 306, 186, 0xffffff)) {
 
+        // Clicca su "Claim All"
+        //mouseClick(0, 320, 280);
+        //std::this_thread::sleep_for(std::chrono::milliseconds(200));
         // Clicca su "Send All"
-        mouseClick(0, 320, 280);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        //mouseClick(0, 320, 280);
+        //std::this_thread::sleep_for(std::chrono::milliseconds(200));
+
 
         // Richiedi il bonus giornaliero
-        mouseClick(0, 320, 180);
+        mouseClick(0, 306, 186);
         std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-        std::cout << "[" << getCurrentTimestamp() << "] Collezionati minion con Daily Bonus" << std::endl;
+        std::cout << "[" << getCurrentTimestamp() << "] Collezionati minion con Daily Bonus, ricontrollo se posso claimare" << std::endl;
+
+        CollectMinion();
     }
     else {
-        // Clicca su "Claim All"
-        mouseClick(0, 318, 182);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-        // Clicca su "Send All"
-        mouseClick(0, 318, 182);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-        std::cout << "[" << getCurrentTimestamp() << "] Collezionati minion" << std::endl;
+        // Clicca "Exit"
+        mouseClick(0, 570, 694);
     }
 
-    // Clicca "Exit"
-    mouseClick(0, 570, 694);
+
 
 }
 
@@ -871,7 +902,7 @@ int main() {
     idleSlayerHwnd = findGameWindow();
 
     if (!idleSlayerHwnd) {
-        std::cerr << "Finestra 'Idle Slayer' non trovata!" << std::endl;
+        std::cerr << "[" << getCurrentTimestamp() << "] Finestra 'Idle Slayer' non trovata!" << std::endl;
         return -1;
     }
 
@@ -884,44 +915,44 @@ int main() {
     //ChestHunt();
     //BuyEquipment();
 
-    CollectMinion();
+    //CollectMinion();
 
-    return 0;
+    //return 0;
 
     
     std::thread reader(readMessages);
-    std::thread bot(actionsThread);
+    std::thread bot(jumpBoostThread);
 
     std::srand(std::time(nullptr));  // Inizializza il random seed
-    running = true;
+    botRunning = true;
 
     // Simula invio di messaggi dal thread principale
     //sendMessage("JumpState", 1); // 1 per attivo
 
-    std::cout << "Premi 'q' per uscire dal bot" << std::endl;
+    std::cout << "[" << getCurrentTimestamp() << "] Premi 'q' per uscire dal bot" << std::endl;
 
-    auto startTime = std::chrono::steady_clock::now();
+    auto lastCheckTime = std::chrono::steady_clock::now();
 
-    while (running) {
+    while (botRunning) {
     
         // Controlla se l'utente ha premuto 'q' per terminare il bot
         //
         if (GetAsyncKeyState('Q') & 0x8000) {
-            running = false;
-            std::cout << "Bot terminato!" << std::endl;
+            botRunning = false;
+            std::cout << "[" << getCurrentTimestamp() << "] Bot terminato!" << std::endl;
         }
 
         // Gestione stato pausa
         //
         if (!paused && (GetAsyncKeyState('P') & 0x8000)) {
             paused = !paused;
-            std::cout << "Pausa " << (paused ? "true" : "false") << std::endl;
+            std::cout << "[" << getCurrentTimestamp() << "] Pausa " << (paused ? "true" : "false") << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
         }
         //
         if (paused && (GetAsyncKeyState('P') & 0x8000) && GetForegroundWindow() == idleSlayerHwnd) {
 			paused = !paused;
-			std::cout << "Pausa " << (paused ? "true" : "false") << std::endl;
+			std::cout << "[" << getCurrentTimestamp() << "] Pausa " << (paused ? "true" : "false") << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }
 
@@ -933,13 +964,14 @@ int main() {
             
             // Chest Hunt
             //
-            if(IsRectangleColor(187, 296, 187, 296, 0xFFBB31) &&
-                IsRectangleColor(187, 303, 187, 303, 0xF68F37)){
+            if (IsRectangleColor(318, 515, 318, 515, 0x3568a7, 10) &&
+                IsRectangleColor(410, 420, 410, 420, 0x3568a7, 10) &&
+                IsRectangleColor(649, 688, 649, 688, 0xffffff, 2)) {
 
-				paused = true;
+				jumpState = false;
                 ChestHunt();
-				paused = false;
-
+                jumpState = true;
+            
             }
 
 
@@ -949,31 +981,36 @@ int main() {
                 IsRectangleColor(638, 236, 638, 236, 0xFFBB31) &&
                 IsRectangleColor(775, 448, 775, 448, 0xFFFFFF)) {
 
-				paused = true;
+                jumpState = false;
                 BonusStage();
-				paused = false;
+                jumpState = true;
 
 			}
 
             // Silver Box Collect
             //
             if (IsRectangleColor(647, 52, 647, 52, 0xffffff)) {
-                std::cout << "Colleziono silver box" << std::endl;
+                std::cout << "[" << getCurrentTimestamp() << "] Colleziono silver box" << std::endl;
                 mouseClick(0, 647, 52);
             }
 
 
-            if (currentTime - startTime >= std::chrono::milliseconds(5000)) {
+            if (currentTime - lastCheckTime >= std::chrono::seconds(10)) {
 
-                // Buy Equipment
+                //std::cout << "[" << getCurrentTimestamp() << "] Valuto equipment / upgrade / minions / quests" << std::endl;
+
+                // Buy Equipment Se si illumina di giallo
                 //
-                if (IsRectangleColor(1163, 655, 1163, 655, 0x00FF00)) {
-                    sendMessage("JumpState", 0); // 0 per disattivato
+                //
+                if (IsRectangleColor(1138, 642, 1138, 642, 0x44cdcd, 10)) {
+                    jumpState = false;
                     BuyEquipment();
-                    sendMessage("JumpState", 1); // 1 per riattivare
-                }
+                    jumpState = true;
 
-                startTime = currentTime;
+                    lastCheckTime = std::chrono::steady_clock::now();
+               }
+
+                
 
             }
 
@@ -987,10 +1024,10 @@ int main() {
     }
 
     // Disattiva il salto
-    sendMessage("JumpState", 0); // 0 per disattivato
+    jumpState = false;
 
     // Ferma il bot
-    running = false;
+    botRunning = false;
     reader.join();
     bot.join();
 
@@ -998,60 +1035,3 @@ int main() {
     return 0;
 }
 
-
-//Se stato attivo ma finestra non in focus
-            //
-            //if (jumpState && GetForegroundWindow() != idleSlayerHwnd) {
-                //sendMessage("JumpState", 0); // 0 per disattivato
-            //	paused = true;
-            //}
-
-            //Se stato disattivo ma finestra in focus
-            //
-            //if (!jumpState && GetForegroundWindow() == idleSlayerHwnd) {
-            //    sendMessage("JumpState", 1);
-            //}
-
-// Variabile per tenere traccia 
-    //auto lastJumpInputTime = std::chrono::steady_clock::now();
-    //auto lastBoostInputTime = std::chrono::steady_clock::now();
-    //const int minJumpDelay = 500;  // 500 ms
-    //const int maxJumpDelay = 1200; // 1200 ms
-    //const int boostHoldDuration = 50; // 50 ms
-    //bool boostActive = false; // Stato del boost
-
-
-    /*
-    while (running) {
-        // Controlla se l'utente ha premuto 'q' per terminare il bot
-        if (GetAsyncKeyState('Q') & 0x8000) {
-            running = false;
-            std::cout << "Bot terminato!" << std::endl;
-        }
-
-        // Attendi che la finestra del gioco sia in foreground
-        if (GetForegroundWindow() == idleSlayerHwnd) {
-            auto currentTime = std::chrono::steady_clock::now();
-            auto elapsedFromJump = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastJumpInputTime).count();
-            auto elapsedFromBoost = std::chrono::duration_cast<std::chrono::milliseconds>(currentTime - lastBoostInputTime).count();
-
-
-            // Se è passato abbastanza tempo dall'ultimo salto, effettua un nuovo salto
-            if (elapsedFromJump >= (rand() % (maxJumpDelay - minJumpDelay + 1) + minJumpDelay)) {
-                sendJumpInput(rand() % 500 + 50); // Invia un salto con una durata casuale tra 50 e 500 ms
-                lastJumpInputTime = currentTime; // Aggiorna il tempo dell'ultimo salto
-            }
-
-            if (elapsedFromBoost >= 6000) {
-                sendBoostInput();
-                lastBoostInputTime = currentTime; // Aggiorna il tempo dell'ultimo boost
-                boostActive = true; // Segna il boost come attivo
-            }
-
-        }
-        else {
-            // Se non siamo in foreground, non fare niente
-            std::this_thread::sleep_for(std::chrono::milliseconds(100)); // Attendi un attimo prima di controllare di nuovo
-        }
-    }
-    */
