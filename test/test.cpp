@@ -18,6 +18,23 @@ HWND findGameWindow() {
     return FindWindow(NULL, L"Idle Slayer");
 }
 
+// Funzione per ottenere il timestamp corrente
+std::string getCurrentTimestamp() {
+    auto now = std::chrono::system_clock::now();
+    std::time_t now_c = std::chrono::system_clock::to_time_t(now);
+    std::tm now_tm; // Struttura per memorizzare la data e l'ora
+
+    // Usa localtime_s per ottenere il tempo locale
+    localtime_s(&now_tm, &now_c);
+
+    // Calcola i millisecondi
+    auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(now.time_since_epoch()) % 1000;
+
+    std::ostringstream oss;
+    oss << std::put_time(&now_tm, "%H:%M:%S") << "." << std::setw(3) << std::setfill('0') << milliseconds.count(); // Aggiungi i millisecondi
+    return oss.str();
+}
+
 // Funzione per verificare se il colore di un pixel è entro una certa tolleranza
 bool IsColorClose(COLORREF pixelColor, COLORREF targetColor, int tolerance) {
     int bPixel = GetBValue(pixelColor);
@@ -270,7 +287,7 @@ void coordinate() {
 void CollectMinion() {
 
     // Stampa il messaggio di log con timestamp
-    std::cout << " Colleziono minion" << std::endl;
+    std::cout << "[" << getCurrentTimestamp() << "] Colleziono minion" << std::endl;
 
     // Clicca sul bottone ascensione
     mouseClick(0, 95, 90);
@@ -278,26 +295,20 @@ void CollectMinion() {
 
     // Clicca Ascension Tab
     //
-    //mouseClick(0, 93, 680);
-    //std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    // Clicca sulla tab dell’albero di ascensione
-    //mouseClick(0, 193, 680);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
-
-    // ????? (Click sul punto specificato)
-    //mouseClick(0, 691, 680);
-    //std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    mouseClick(0, 93, 680);
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
     // Clicca sulla tab minion
     mouseClick(0, 332, 680);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
-    MouseMove(498, 180);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    // Mouse in mezzo alla tab minion
+    //
+    MouseMove(311, 421);
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
-    MouseWheelScroll(5);
-    std::this_thread::sleep_for(std::chrono::milliseconds(200));
+    MouseWheelScroll(10);
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
 
 
@@ -305,9 +316,28 @@ void CollectMinion() {
     //
     while (!IsRectangleColor(612, 638, 612, 638, 0xffffff)) {
 
-        if (IsRectangleColor(498, 180, 498, 180, 0x22a310)) {
+        MouseMove(498, 190);
+        std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+        // Controllo primo punto possibile casella verde (quello se ce bonus giornaliero)
+        //
+        if (IsRectangleColor(498, 180, 498, 180, 0x22a310, 5)) {
             mouseClick(0, 498, 180, 2, 200);
-            std::cout << "Click primo minion" << std::endl;
+            std::cout << "[" << getCurrentTimestamp() << "] Click primo minion" << std::endl;
+        }
+        else {
+
+            MouseMove(498, 190);
+            std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+            // Controllo secondo punto possibile (non ce bonus giornaliero)
+            //
+            if (IsRectangleColor(498, 180, 498, 180, 0x22a310, 5)) {
+                mouseClick(0, 498, 180, 2, 200);
+                std::cout << "[" << getCurrentTimestamp() << "] Click primo minion" << std::endl;
+            }
+
+
         }
 
         MouseWheelScroll(-1);
@@ -341,9 +371,9 @@ void CollectMinion() {
 
         // Richiedi il bonus giornaliero
         mouseClick(0, 306, 186);
-        std::this_thread::sleep_for(std::chrono::milliseconds(200));
+        std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
-        std::cout << "Collezionati minion con Daily Bonus, ricontrollo se posso claimare" << std::endl;
+        std::cout << "[" << getCurrentTimestamp() << "] Collezionati minion con Daily Bonus, ricontrollo se posso claimare" << std::endl;
 
         CollectMinion();
     }
@@ -352,8 +382,39 @@ void CollectMinion() {
         mouseClick(0, 570, 694);
     }
 
-    
 
+
+}
+
+void measureKeyPressDuration() {
+    // Variabili per la misurazione del tempo
+    auto start = std::chrono::steady_clock::now();
+    bool keyPressed = false;
+
+    std::cout << "Tieni premuto il tasto freccia in alto...\n";
+
+    // Ciclo per controllare lo stato del tasto
+    while (true) {
+        // Controlla se il tasto freccia in alto è premuto
+        if (GetAsyncKeyState(VK_UP) & 0x8000) {
+            if (!keyPressed) {  // Se il tasto non era già stato registrato come premuto
+                keyPressed = true;
+                start = std::chrono::steady_clock::now(); // Inizia a misurare
+            }
+        }
+        else {
+            if (keyPressed) {  // Se il tasto era premuto e ora è stato rilasciato
+                keyPressed = false;
+                auto end = std::chrono::steady_clock::now(); // Ferma la misurazione
+                auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(end - start).count();
+                std::cout << "Hai tenuto premuto il tasto per " << duration << " millisecondi.\n";
+                break; // Esci dal ciclo
+            }
+        }
+
+        // Piccola pausa per evitare un utilizzo eccessivo della CPU
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
 }
 
 int main() {
@@ -362,8 +423,6 @@ int main() {
         std::cerr << "Impossibile trovare la finestra del gioco." << std::endl;
         return 1;
     }
-
-	//CollectMinion(); // Esegui la funzione per raccogliere i minion
 
     
 
