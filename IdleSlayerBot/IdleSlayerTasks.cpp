@@ -30,16 +30,14 @@ void sendJumpInput() {
     // Stampa il messaggio di log con timestamp
     //std::cout << "[" << getCurrentTimestamp() << "] Salto con durata: " << msLunghezzaSalto << " ms" << std::endl;
 
-    // Simula la pressione del tasto freccia in alto
     INPUT input = { 0 };
-    input.type = INPUT_KEYBOARD;
-    input.ki.wVk = VK_UP; // Codice virtuale per la freccia in alto
+    input.type = INPUT_MOUSE;
+    input.mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
 
-    // Invia il tasto premuto
     SendInput(1, &input, sizeof(INPUT));
 
     // Rilascia il tasto
-    input.ki.dwFlags = KEYEVENTF_KEYUP; // Flag per il rilascio del tasto
+    input.mi.dwFlags = MOUSEEVENTF_LEFTUP;
     SendInput(1, &input, sizeof(INPUT));
 }
 
@@ -294,27 +292,13 @@ void buyEquipment() {
     // Stampa il messaggio di log con timestamp
     std::cout << "[" << getCurrentTimestamp() << "] Compro Equipment" << std::endl;
 
-    // Chiude la finestra del negozio se è aperta
-    mouseClick(gameHWND, 0, 1244, 712);
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
-
-    // Apre la finestra del negozio
-    mouseClick(gameHWND, 0, 1163, 655);
-    std::this_thread::sleep_for(std::chrono::milliseconds(150));
-
     // Se NEGOZIO APERTO
     if (isRectangleColor(gameHWND, 1203, 687, 1203, 687, 0x1010a6, 5)) {
 
         // Stampa il messaggio di log con timestamp
         std::cout << "[" << getCurrentTimestamp() << "] Negozio Aperto" << std::endl;
 
-        // Clicco sulla scheda quest giusto per togliere il flash giallo se una è completa
-        // TODO: Implementare quest claiming
-        //
-        mouseClick(gameHWND, 0, 1010, 684);
-        std::this_thread::sleep_for(std::chrono::milliseconds(50));
-
-        // Clicca sulla scheda dell'armatura
+        // Clicca sulla scheda delle armi
         mouseClick(gameHWND, 0, 850, 690);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
@@ -416,6 +400,9 @@ void buyUpgrade() {
     mouseClick(gameHWND, 0, 927, 683);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
+    // Stampa il messaggio di log con timestamp
+    std::cout << "[" << getCurrentTimestamp() << "] Seleziono seconda tab" << std::endl;
+
     //Scrollo in alto
     //
     mouseMove(gameHWND, 1254, 173);
@@ -430,9 +417,9 @@ void buyUpgrade() {
 
     while (true) {
 
-        // Controllo se Random Box Magnet è il prossimo upgrade (per skipparlo)
+        // TODO: Controllo se Random Box Magnet è il prossimo upgrade (per skipparlo)
         //
-        //
+        /*
         if ((isRectangleColor(gameHWND, 846, 207, 846, 207, 0x37e7ff) && isRectangleColor(gameHWND, 880, 207, 880, 207, 0x1bb4f4)) ||
             (isRectangleColor(gameHWND, 845, 305, 845, 305, 0x37e7ff) && isRectangleColor(gameHWND, 880, 305, 880, 305, 0xff78e4))) {
 
@@ -440,6 +427,7 @@ void buyUpgrade() {
 
             y += 96;
         }
+        */
 
         // Controllo se casella verde disponibile
         //
@@ -456,7 +444,7 @@ void buyUpgrade() {
             //
             mouseClick(gameHWND, 0, 1190, y);
             std::cout << "[" << getCurrentTimestamp() << "] Comprato un upgrade" << std::endl;
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
 
     }
@@ -472,7 +460,7 @@ void buyUpgrade() {
     else {
 
         std::cout << "[" << getCurrentTimestamp() << "] Fine compro upgrade" << std::endl;
-        mouseClick(gameHWND, 0, 1222, 677);
+        //mouseClick(gameHWND, 0, 1222, 677);
     }
 
 
@@ -480,6 +468,7 @@ void buyUpgrade() {
 
 void collectMinion() {
 
+    /*
     // Stampa il messaggio di log con timestamp
     std::cout << "[" << getCurrentTimestamp() << "] Colleziono minion" << std::endl;
 
@@ -577,5 +566,83 @@ void collectMinion() {
     }
 
 
+    */
+}
 
+void claimQuests()
+{
+    // Stampa il messaggio di log con timestamp
+    std::cout << "[" << getCurrentTimestamp() << "] Claimo quests" << std::endl;
+
+    // Se NEGOZIO APERTO
+    if (isRectangleColor(gameHWND, 1203, 687, 1203, 687, 0x1010a6, 5)) {
+
+        // Stampa il messaggio di log con timestamp
+        std::cout << "[" << getCurrentTimestamp() << "] Negozio Aperto" << std::endl;
+
+        // Clicca sulla scheda delle quest
+        mouseClick(gameHWND, 0, 1004, 690);
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+        // Stampa il messaggio di log con timestamp
+        std::cout << "[" << getCurrentTimestamp() << "] Seleziono terza tab" << std::endl;
+
+        // Clicca in cima alla barra di scorrimento
+        mouseClick(gameHWND, 0, 1252, 273, 3);
+        std::this_thread::sleep_for(std::chrono::milliseconds(500));
+
+        // Controlla se non c'è la barra di scorrimento (scrollbar)
+        if (isRectangleColor(gameHWND, 1257, 340, 1257, 340, 0x11AA23)) {
+
+            std::cout << "[" << getCurrentTimestamp() << "] Non ho trovato barra di scorrimento, ERRORE, non dovrebbe esserci il caso" << std::endl;
+        }
+
+
+        // Metto mouse in posizione hover al primo elemento
+        //
+        mouseMove(gameHWND, 1193, 278);
+
+        // Cerca caselle verdi (indicanti un acquisto possibile)
+        while (true) {
+            if (!isRectangleColor(gameHWND, 1193, 278, 1193, 278, 0x22a310, 9)) {
+
+                //std::cout << "[" << getCurrentTimestamp() << "] No caselle verdi, scorro" << std::endl;
+
+                // Se non ci sono, scorro verso il basso
+
+                mouseWheelScroll(-1);
+                std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+                // Verifica se la barra di scorrimento non è grigia (fine dello scorrimento)
+                if (!isRectangleColor(gameHWND, 1253, 643, 1253, 643, 0xd6d6d6)) {
+                    std::cout << "[" << getCurrentTimestamp() << "] Fine lista oggetti, claimo le ultime quest" << std::endl;
+
+                    // Scrollo bene fino in fondo
+                    mouseWheelScroll(-3);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(450));
+
+                    // Click sugli ultimi oggetti della pagina
+                    //
+                    mouseClick(gameHWND, 0, 1192, 335);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                    mouseClick(gameHWND, 0, 1192, 449);
+                    std::this_thread::sleep_for(std::chrono::milliseconds(400));
+                    mouseClick(gameHWND, 0, 1192, 558);
+
+                    break; // Esce dal ciclo se non c'è più la barra di scorrimento
+                }
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+            }
+            else {
+                // Se trova una casella verde, clicca su di essa per comprare
+                mouseClick(gameHWND, 0, 1193, 278, 5);
+                std::cout << "[" << getCurrentTimestamp() << "] Casella verde, claimo quest" << std::endl;
+            }
+        }
+
+    }
+    else {
+        std::cerr << "[" << getCurrentTimestamp() << "] Negozio non aperto! " << std::endl;
+    }
 }
