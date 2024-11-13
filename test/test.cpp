@@ -930,7 +930,21 @@ int main() {
 
     SetForegroundWindow(gameHWND);
 
-    coordinate(); // Esegui la funzione per stampare le coordinate e il colore
+    while (true) {
+
+        mouseMove(gameHWND, 840, 560);
+        mouseClickDrag(gameHWND, 840, 560, 450, 560);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+        mouseMove(gameHWND, 450, 560);
+        mouseClickDrag(gameHWND, 450, 560, 840, 560);
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(2500));
+
+    }
+
+    //coordinate(); // Esegui la funzione per stampare le coordinate e il colore
 
    
 

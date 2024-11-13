@@ -226,7 +226,39 @@ void chestHunt() {
 // Funzione Slider
 void bonusStageSlider() {
 
-    // DA DESTRA VERSO SINISTRA
+    // BRUTE FORCE ALL POSSIBLE SLIDER
+    
+    // TOP
+
+    // LEFT -> RIGHT
+    mouseMove(gameHWND, 450, 560);
+    mouseClickDrag(gameHWND, 450, 560, 840, 560);
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+    // RIGHT -> LEFT
+    mouseMove(gameHWND, 840, 560);
+    mouseClickDrag(gameHWND, 840, 560, 450, 560);
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+    // BOTTOM
+
+    // LEFT -> RIGHT
+    mouseMove(gameHWND, 450, 620);
+    mouseClickDrag(gameHWND, 450, 620, 840, 620);
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+    // RIGHT -> LEFT
+    mouseMove(gameHWND, 840, 620);
+    mouseClickDrag(gameHWND, 840, 620, 450, 620);
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+
+    return;
+
+
+    // OLD
+
+    /*
+        // DA DESTRA VERSO SINISTRA
 
     // Top left
     if (isRectangleColor(gameHWND, 443, 560, 443, 560, 0x007E00)) {
@@ -257,6 +289,9 @@ void bonusStageSlider() {
         mouseClickDrag(gameHWND, 450, 620, 840, 620);
         return;
     }
+    
+    */
+    
 }
 
 void bonusStage() {
