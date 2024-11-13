@@ -225,6 +225,9 @@ void chestHunt() {
 
 // Funzione Slider
 void bonusStageSlider() {
+
+    // DA DESTRA VERSO SINISTRA
+
     // Top left
     if (isRectangleColor(gameHWND, 443, 560, 443, 560, 0x007E00)) {
         mouseMove(gameHWND, 840, 560);
@@ -239,15 +242,17 @@ void bonusStageSlider() {
         return;
     }
 
+    // DA SINISTRA VERSO DESTRA
+
     // Top right
-    if (isRectangleColor(gameHWND, 850, 560, 850, 560, 0x007E00)) {
-        mouseMove(gameHWND, 450, 560);
-        mouseClickDrag(gameHWND, 450, 560, 840, 560);
+    if (isRectangleColor(gameHWND, 849, 597, 849, 597, 0x7e00)) {
+        mouseMove(gameHWND, 450, 620);
+        mouseClickDrag(gameHWND, 450, 620, 840, 620);
         return;
     }
 
     // Bottom right
-    if (isRectangleColor(gameHWND, 850, 620, 850, 620, 0x007E00)) {
+    if (isRectangleColor(gameHWND, 849, 646, 849, 646, 0x7e00)) {
         mouseMove(gameHWND, 450, 620);
         mouseClickDrag(gameHWND, 450, 620, 840, 620);
         return;
@@ -262,29 +267,29 @@ void bonusStage() {
     // Ciclare fino a trovare il pixel bianco
     while (true) {
         bonusStageSlider();
-        Sleep(500);
-        if (isRectangleColor(gameHWND, 775, 448, 775, 448, 0xFFFFFF)) {
-            break; // Esci dal ciclo se trovi il pixel
+        Sleep(1000);
+        if (!isRectangleColor(gameHWND, 648, 232, 648, 232, 0x31bbff, 0) &&
+            !isRectangleColor(gameHWND, 634, 308, 634, 308, 0xFFFFFF, 0))
+        {
+            // Se non ce piu la stella e la scritta tipiche del bonus stage
+            std::cout << "[" << getCurrentTimestamp() << "] Bonus Stage Partito!" << std::endl;
+            break;
         }
     }
 
-    Sleep(3900);
-
-    // Controlla se il pixel di stato bonus è presente
-    if (isRectangleColor(gameHWND, 454, 91, 454, 91, 0xE1E0E2)) {
-
-        std::cout << "[" << getCurrentTimestamp() << "] Ignoro Bonus Stage" << std::endl;
-
-        // Ciclare fino a quando la fase bonus fallisce
-        while (true) {
-            Sleep(200);
-            if (isRectangleColor(gameHWND, 775, 600, 775, 600, 0xB40000)) {
-                mouseClick(0, 0, 721, 577); // Clicca in caso di fallimento
-                break; // Esci dal ciclo
-            }
+    while(true)
+    {
+		Sleep(200);
+        if (isRectangleColor(gameHWND, 791, 580, 791, 580, 0xb2, 9)) {
+            std::cout << "[" << getCurrentTimestamp() << "] Bonus Stage Finito, premo pulsante!" << std::endl;
+            mouseClick(gameHWND, 0, 721, 577); // Clicca in caso di fallimento
+            break; // Esci dal ciclo
         }
     }
 
+    Sleep(5000);
+
+    std::cout << "[" << getCurrentTimestamp() << "] Uscito da Bonus Stage!" << std::endl;
 }
 
 void buyEquipment() {
@@ -417,7 +422,7 @@ void buyUpgrade() {
 
     while (true) {
 
-        // TODO: Controllo se Random Box Magnet è il prossimo upgrade (per skipparlo)
+        // TODO: Random Box Magnet Vertical Avoid 
         //
         /*
         if ((isRectangleColor(gameHWND, 846, 207, 846, 207, 0x37e7ff) && isRectangleColor(gameHWND, 880, 207, 880, 207, 0x1bb4f4)) ||
@@ -428,6 +433,44 @@ void buyUpgrade() {
             y += 96;
         }
         */
+
+        // Vertical Magnet
+        if (
+            y < 362 &&
+            isRectangleColor(gameHWND, 845, 208, 845, 208, 0x37e7ff, 9) &&  // (845, 208) colore 0x37e7ff
+            isRectangleColor(gameHWND, 849, 208, 849, 208, 0x424242, 9) &&  // (849, 208) colore 0x424242
+            isRectangleColor(gameHWND, 855, 207, 855, 207, 0x37e7ff, 9) &&  // (855, 207) colore 0x37e7ff
+            isRectangleColor(gameHWND, 860, 206, 860, 206, 0x424242, 9) &&  // (860, 206) colore 0x424242
+            isRectangleColor(gameHWND, 865, 206, 865, 206, 0x37e7ff, 9)     // (865, 206) colore 0x37e7ff
+            )
+        {
+
+            // Normal Vertical Magnet
+            if (
+                y < 266 &&
+                isRectangleColor(gameHWND, 879, 203, 879, 203, 0x1bb4f4, 9) &&  // (879, 203) colore 0x1bb4f4
+                isRectangleColor(gameHWND, 909, 203, 909, 203, 0x3b3ba9, 9) &&  // (909, 203) colore 0x3b3ba9
+                isRectangleColor(gameHWND, 908, 202, 908, 202, 0x3b3ba9, 9)     // (908, 202) colore 0x3b3ba9
+                ) {
+                std::cout << "[" << getCurrentTimestamp() << "] Trovato Random Box Magnet Upgrade, lo salto" << std::endl;
+
+                y += 96;
+            }
+
+            // Special Vertical Magnet
+            if (
+                y < 362 &&
+                isRectangleColor(gameHWND, 879, 301, 879, 301, 0xff78e4, 9) &&  // (879, 205) colore 0xff78e4
+                isRectangleColor(gameHWND, 886, 301, 886, 301, 0xdf26bb, 9) &&  // (886, 205) colore 0xdf26bb
+                isRectangleColor(gameHWND, 908, 303, 908, 303, 0x8b1874, 9)     // (908, 207) colore 0x8b1874
+                )
+            {
+                std::cout << "[" << getCurrentTimestamp() << "] Trovato Special Random Box Magnet Upgrade, lo salto" << std::endl;
+
+                y += 96;
+            }
+        }
+
 
         // Controllo se casella verde disponibile
         //
@@ -645,4 +688,38 @@ void claimQuests()
     else {
         std::cerr << "[" << getCurrentTimestamp() << "] Negozio non aperto! " << std::endl;
     }
+}
+
+void ascend()
+{
+    /*
+    Coordinate relative: (105, 98), Colore: 0xffffff
+    Coordinate relative: (92, 689), Colore: 0xffffff
+    Coordinate relative: (187, 590), Colore: 0xffffff
+    Coordinate relative: (563, 590), Colore: 0xffffff
+    Coordinate relative: (209, 686), Colore: 0xd7373
+    Coordinate relative: (566, 684), Colore: 0x151515
+    */
+
+    mouseClick(gameHWND, 0, 105, 98);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+    mouseClick(gameHWND, 0, 92, 689);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+    mouseClick(gameHWND, 0, 187, 590);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+    mouseClick(gameHWND, 0, 563, 590);
+    std::this_thread::sleep_for(std::chrono::milliseconds(1500));
+
+    mouseClick(gameHWND, 0, 105, 98);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+    mouseClick(gameHWND, 0, 209, 686);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
+    mouseClick(gameHWND, 0, 566, 684);
+    std::this_thread::sleep_for(std::chrono::milliseconds(250));
+
 }

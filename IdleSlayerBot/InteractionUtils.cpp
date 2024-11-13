@@ -197,12 +197,15 @@ void mouseClickDrag(HWND hwnd, int x1, int y1, int x2, int y2) {
         int ry2 = rect.top + y2;
 
 
-        // Simula un click del mouse e un movimento da start a end
-        mouse_event(MOUSEEVENTF_LEFTDOWN, rx1, ry1, 0, 0);
-        Sleep(1000); // Aggiungi una breve pausa
-        mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, rx2, ry2, 0, 0);
-        Sleep(1000); // Aggiungi una breve pausa
-        mouse_event(MOUSEEVENTF_LEFTUP, rx2, ry2, 0, 0);
+        // Posiziona il mouse usando coordinate assolute per rx1 e ry1
+        SetCursorPos(rx1, ry1);
+        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        Sleep(1000);
+
+        // Muovi il mouse alla seconda posizione rx2, ry2
+        SetCursorPos(rx2, ry2);
+        Sleep(1000);
+        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 
     }
     else {

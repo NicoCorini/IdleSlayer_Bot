@@ -13,7 +13,7 @@
 #include <string>
 
 
-HWND idleSlayerHwnd = NULL;
+HWND gameHWND = NULL;
 
 // Prototipi
 void sendShootInput();
@@ -227,12 +227,15 @@ void mouseClickDrag(HWND hwnd, int x1, int y1, int x2, int y2) {
         int ry2 = rect.top + y2;
 
 
-        // Simula un click del mouse e un movimento da start a end
-        mouse_event(MOUSEEVENTF_LEFTDOWN, rx1, ry1, 0, 0);
-        Sleep(1000); // Aggiungi una breve pausa
-        mouse_event(MOUSEEVENTF_MOVE | MOUSEEVENTF_ABSOLUTE, rx2, ry2, 0, 0);
-        Sleep(1000); // Aggiungi una breve pausa
-        mouse_event(MOUSEEVENTF_LEFTUP, rx2, ry2, 0, 0);
+        // Posiziona il mouse usando coordinate assolute per rx1 e ry1
+        SetCursorPos(rx1, ry1);
+        mouse_event(MOUSEEVENTF_LEFTDOWN, 0, 0, 0, 0);
+        Sleep(1000);
+
+        // Muovi il mouse alla seconda posizione rx2, ry2
+        SetCursorPos(rx2, ry2);
+        Sleep(1000);
+        mouse_event(MOUSEEVENTF_LEFTUP, 0, 0, 0, 0);
 
     }
     else {
@@ -330,7 +333,7 @@ void chestHunt() {
 
             std::cout << "[" << getCurrentTimestamp() << "] Controllo chest: " << i << ", " << j << std::endl;
 
-            if (isRectangleColor(idleSlayerHwnd, x + 3, y - 1, x + 3, y - 1, 0x4ebff)) {
+            if (isRectangleColor(gameHWND, x + 3, y - 1, x + 3, y - 1, 0x4ebff)) {
 
                 saverX = x;
                 saverY = y;
@@ -365,7 +368,7 @@ void chestHunt() {
             // Utilizzo Saver
             //
             if (count == 1 && saverX > 0) {
-                mouseClick(idleSlayerHwnd, 0, saverX + 33, saverY - 23);
+                mouseClick(gameHWND, 0, saverX + 33, saverY - 23);
                 std::this_thread::sleep_for(std::chrono::milliseconds(1500));
             }
 
@@ -387,21 +390,21 @@ void chestHunt() {
 
             // Apro Chest
             //
-            mouseClick(idleSlayerHwnd, 0, x + 33, y - 23);
+            mouseClick(gameHWND, 0, x + 33, y - 23);
             std::cout << "[" << getCurrentTimestamp() << "] Apro chest: " << 1 + count << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(4000));
 
 
             // Controllo se Chest Hunt è finita
             //
-            if (isRectangleColor(idleSlayerHwnd, 719, 687, 719, 687, 0xb4)) {
+            if (isRectangleColor(gameHWND, 719, 687, 719, 687, 0xb4)) {
                 std::cout << "[" << getCurrentTimestamp() << "] Chest Hunt finita!" << std::endl;
                 isFinished = true;
                 std::this_thread::sleep_for(std::chrono::milliseconds(1500));
 
                 // Clicko tasto per uscire
                 //
-                mouseClick(idleSlayerHwnd, 0, 719, 687);
+                mouseClick(gameHWND, 0, 719, 687);
 
                 break;
             }
@@ -409,7 +412,7 @@ void chestHunt() {
             // if 2x wait some more
             // TODO: VERIFICARE UNA VOLTA CHE HO POWER UP
             //
-            //if (isRectangleColor(idleSlayerHwnd, 500, 210, 500, 210, 0x00FF00)) {
+            //if (isRectangleColor(gameHWND, 500, 210, 500, 210, 0x00FF00)) {
             //    std::cout << "[" << getCurrentTimestamp() << "] Trovato 2x!" << std::endl;
             //	std::this_thread::sleep_for(std::chrono::milliseconds(2500));
             //}
@@ -417,7 +420,7 @@ void chestHunt() {
             // If mimic wait some more
             // TODO: NOT WORKING
             //
-            //if (isRectangleColor(idleSlayerHwnd, 450, 212, 450, 212, 0xf60250, 9)) {
+            //if (isRectangleColor(gameHWND, 450, 212, 450, 212, 0xf60250, 9)) {
             //    std::cout << "[" << getCurrentTimestamp() << "] Trovato Mimic!" << std::endl;
             //	std::this_thread::sleep_for(std::chrono::milliseconds(2500));
             //}
@@ -441,30 +444,30 @@ void chestHunt() {
 // Funzione Slider
 void bonusStageSlider() {
     // Top left
-    if (isRectangleColor(idleSlayerHwnd, 443, 560, 443, 560, 0x007E00)) {
-        mouseMove(idleSlayerHwnd, 840, 560);
-        mouseClickDrag(idleSlayerHwnd, 840, 560, 450, 560);
+    if (isRectangleColor(gameHWND, 443, 560, 443, 560, 0x007E00)) {
+        mouseMove(gameHWND, 840, 560);
+        mouseClickDrag(gameHWND, 840, 560, 450, 560);
         return;
     }
 
     // Bottom left
-    if (isRectangleColor(idleSlayerHwnd, 443, 620, 443, 620, 0x007E00)) {
-        mouseMove(idleSlayerHwnd, 840, 620);
-        mouseClickDrag(idleSlayerHwnd, 840, 620, 450, 620);
+    if (isRectangleColor(gameHWND, 443, 620, 443, 620, 0x007E00)) {
+        mouseMove(gameHWND, 840, 620);
+        mouseClickDrag(gameHWND, 840, 620, 450, 620);
         return;
     }
 
     // Top right
-    if (isRectangleColor(idleSlayerHwnd, 850, 560, 850, 560, 0x007E00)) {
-        mouseMove(idleSlayerHwnd, 450, 560);
-        mouseClickDrag(idleSlayerHwnd, 450, 560, 840, 560);
+    if (isRectangleColor(gameHWND, 850, 560, 850, 560, 0x007E00)) {
+        mouseMove(gameHWND, 450, 560);
+        mouseClickDrag(gameHWND, 450, 560, 840, 560);
         return;
     }
 
     // Bottom right
-    if (isRectangleColor(idleSlayerHwnd, 850, 620, 850, 620, 0x007E00)) {
-        mouseMove(idleSlayerHwnd, 450, 620);
-        mouseClickDrag(idleSlayerHwnd, 450, 620, 840, 620);
+    if (isRectangleColor(gameHWND, 850, 620, 850, 620, 0x007E00)) {
+        mouseMove(gameHWND, 450, 620);
+        mouseClickDrag(gameHWND, 450, 620, 840, 620);
         return;
     }
 }
@@ -478,7 +481,7 @@ void bonusStage() {
     while (true) {
         bonusStageSlider();
         Sleep(500);
-        if (isRectangleColor(idleSlayerHwnd, 775, 448, 775, 448, 0xFFFFFF)) {
+        if (isRectangleColor(gameHWND, 775, 448, 775, 448, 0xFFFFFF)) {
             break; // Esci dal ciclo se trovi il pixel
         }
     }
@@ -486,14 +489,14 @@ void bonusStage() {
     Sleep(3900);
 
     // Controlla se il pixel di stato bonus è presente
-    if (isRectangleColor(idleSlayerHwnd, 454, 91, 454, 91, 0xE1E0E2)) {
+    if (isRectangleColor(gameHWND, 454, 91, 454, 91, 0xE1E0E2)) {
 
         std::cout << "[" << getCurrentTimestamp() << "] Ignoro Bonus Stage" << std::endl;
 
         // Ciclare fino a quando la fase bonus fallisce
         while (true) {
             Sleep(200);
-            if (isRectangleColor(idleSlayerHwnd, 775, 600, 775, 600, 0xB40000)) {
+            if (isRectangleColor(gameHWND, 775, 600, 775, 600, 0xB40000)) {
                 mouseClick(0, 0, 721, 577); // Clicca in caso di fallimento
                 break; // Esci dal ciclo
             }
@@ -508,58 +511,58 @@ void buyEquipment() {
     std::cout << "[" << getCurrentTimestamp() << "] Compro Equipment" << std::endl;
 
     // Se NEGOZIO APERTO
-    if (isRectangleColor(idleSlayerHwnd, 1203, 687, 1203, 687, 0x1010a6, 5)) {
+    if (isRectangleColor(gameHWND, 1203, 687, 1203, 687, 0x1010a6, 5)) {
 
         // Stampa il messaggio di log con timestamp
         std::cout << "[" << getCurrentTimestamp() << "] Negozio Aperto" << std::endl;
 
         // Clicca sulla scheda delle armi
-        mouseClick(idleSlayerHwnd, 0, 850, 690);
+        mouseClick(gameHWND, 0, 850, 690);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         // Stampa il messaggio di log con timestamp
         std::cout << "[" << getCurrentTimestamp() << "] Seleziono prima tab" << std::endl;
 
         // Clicca su "Acquisto massimo"
-        mouseClick(idleSlayerHwnd, 0, 1205, 631, 4);
+        mouseClick(gameHWND, 0, 1205, 631, 4);
 
         // Stampa il messaggio di log con timestamp
         std::cout << "[" << getCurrentTimestamp() << "] Setto acquisto massimo" << std::endl;
 
         // Controlla se non c'è la barra di scorrimento (scrollbar)
-        if (isRectangleColor(idleSlayerHwnd, 1257, 340, 1257, 340, 0x11AA23)) {
+        if (isRectangleColor(gameHWND, 1257, 340, 1257, 340, 0x11AA23)) {
             // Compra la spada se la barra di scorrimento non è visibile
-            mouseClick(idleSlayerHwnd, 0, 1200, 200);
+            mouseClick(gameHWND, 0, 1200, 200);
             std::cout << "[" << getCurrentTimestamp() << "] Non ho trovato barra di scorrimento, compro spada" << std::endl;
         }
         else {
             // Clicca in fondo alla barra di scorrimento
-            mouseClick(idleSlayerHwnd, 0, 1254, 604);
+            mouseClick(gameHWND, 0, 1254, 604);
             std::cout << "[" << getCurrentTimestamp() << "] Trovata barra di scorrimento, scorro in fondo" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             // Compra l'ultimo oggetto
-            mouseClick(idleSlayerHwnd, 0, 1200, 560);
+            mouseClick(gameHWND, 0, 1200, 560);
             std::cout << "[" << getCurrentTimestamp() << "] Compro ultimo oggetto" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
             // Clicca in cima alla barra di scorrimento
-            mouseClick(idleSlayerHwnd, 0, 1254, 170, 3);
+            mouseClick(gameHWND, 0, 1254, 170, 3);
             std::cout << "[" << getCurrentTimestamp() << "] Torno in alto" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(100));
         }
 
         // Setto acquisto 50
-        mouseClick(idleSlayerHwnd, 0, 1100, 636, 5);
+        mouseClick(gameHWND, 0, 1100, 636, 5);
         std::cout << "[" << getCurrentTimestamp() << "] Setto acquisto a 50" << std::endl;
 
         // Metto mouse in posizione hover al primo elemento
         //
-        mouseMove(idleSlayerHwnd, 1190, 179);
+        mouseMove(gameHWND, 1190, 179);
 
         // Cerca caselle verdi (indicanti un acquisto possibile)
         while (true) {
-            if (!isRectangleColor(idleSlayerHwnd, 1160, 170, 1160, 170, 0x22a310, 9)) {
+            if (!isRectangleColor(gameHWND, 1160, 170, 1160, 170, 0x22a310, 9)) {
 
                 //std::cout << "[" << getCurrentTimestamp() << "] No caselle verdi, scorro" << std::endl;
 
@@ -569,21 +572,21 @@ void buyEquipment() {
                 std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
                 // Verifica se la barra di scorrimento non è grigia (fine dello scorrimento)
-                if (!isRectangleColor(idleSlayerHwnd, 1253, 605, 1253, 605, 0xd6d6d6)) {
+                if (!isRectangleColor(gameHWND, 1253, 605, 1253, 605, 0xd6d6d6)) {
                     std::cout << "[" << getCurrentTimestamp() << "] Fine lista oggetti, valuto ultimi oggetti della lista" << std::endl;
 
 
                     // Click sugli ultimi oggetti della pagina
                     //
-                    mouseClick(idleSlayerHwnd, 0, 1190, 185, 5);
+                    mouseClick(gameHWND, 0, 1190, 185, 5);
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    mouseClick(idleSlayerHwnd, 0, 1190, 269, 5);
+                    mouseClick(gameHWND, 0, 1190, 269, 5);
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    mouseClick(idleSlayerHwnd, 0, 1190, 365, 5);
+                    mouseClick(gameHWND, 0, 1190, 365, 5);
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    mouseClick(idleSlayerHwnd, 0, 1190, 465, 5);
+                    mouseClick(gameHWND, 0, 1190, 465, 5);
                     std::this_thread::sleep_for(std::chrono::milliseconds(100));
-                    mouseClick(idleSlayerHwnd, 0, 1190, 562, 5);
+                    mouseClick(gameHWND, 0, 1190, 562, 5);
 
                     break; // Esce dal ciclo se non c'è più la barra di scorrimento
                 }
@@ -591,7 +594,7 @@ void buyEquipment() {
             }
             else {
                 // Se trova una casella verde, clicca su di essa per comprare
-                mouseClick(idleSlayerHwnd, 0, 1160, 170, 5);
+                mouseClick(gameHWND, 0, 1160, 170, 5);
                 std::cout << "[" << getCurrentTimestamp() << "] Casella verde, compro oggetto" << std::endl;
             }
         }
@@ -612,7 +615,7 @@ void buyUpgrade() {
 
     // Premo su tab Upgrade
     //
-    mouseClick(idleSlayerHwnd, 0, 927, 683);
+    mouseClick(gameHWND, 0, 927, 683);
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
 
     // Stampa il messaggio di log con timestamp
@@ -620,8 +623,8 @@ void buyUpgrade() {
 
     //Scrollo in alto
     //
-    mouseMove(idleSlayerHwnd, 1254, 173);
-    while (isRectangleColor(idleSlayerHwnd, 1254, 167, 1254, 167, 0xD6D6D6)) {
+    mouseMove(gameHWND, 1254, 173);
+    while (isRectangleColor(gameHWND, 1254, 167, 1254, 167, 0xD6D6D6)) {
         mouseWheelScroll(20);
     }
 
@@ -635,8 +638,8 @@ void buyUpgrade() {
         // Controllo se Random Box Magnet è il prossimo upgrade (per skipparlo)
         //
         //
-        if ((isRectangleColor(idleSlayerHwnd, 846, 207, 846, 207, 0x37e7ff) && isRectangleColor(idleSlayerHwnd, 880, 207, 880, 207, 0x1bb4f4)) ||
-            (isRectangleColor(idleSlayerHwnd, 845, 305, 845, 305, 0x37e7ff) && isRectangleColor(idleSlayerHwnd, 880, 305, 880, 305, 0xff78e4))) {
+        if ((isRectangleColor(gameHWND, 846, 207, 846, 207, 0x37e7ff) && isRectangleColor(gameHWND, 880, 207, 880, 207, 0x1bb4f4)) ||
+            (isRectangleColor(gameHWND, 845, 305, 845, 305, 0x37e7ff) && isRectangleColor(gameHWND, 880, 305, 880, 305, 0xff78e4))) {
 
             std::cout << "[" << getCurrentTimestamp() << "] Trovato Random Box Magnet Upgrade, lo salto" << std::endl;
 
@@ -645,7 +648,7 @@ void buyUpgrade() {
 
         // Controllo se casella verde disponibile
         //
-        if (!isRectangleColor(idleSlayerHwnd, 1180, y, 1190, y, 0x22a310, 9)) {
+        if (!isRectangleColor(gameHWND, 1180, y, 1190, y, 0x22a310, 9)) {
 
             std::cout << "[" << getCurrentTimestamp() << "] Finiti gli upgrade, esco" << std::endl;
 
@@ -656,7 +659,7 @@ void buyUpgrade() {
 
             // Clicco su casella verde
             //
-            mouseClick(idleSlayerHwnd, 0, 1190, y);
+            mouseClick(gameHWND, 0, 1190, y);
             std::cout << "[" << getCurrentTimestamp() << "] Comprato un upgrade" << std::endl;
             std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
@@ -674,7 +677,7 @@ void buyUpgrade() {
     else {
 
         std::cout << "[" << getCurrentTimestamp() << "] Fine compro upgrade" << std::endl;
-        mouseClick(idleSlayerHwnd, 0, 1222, 677);
+        mouseClick(gameHWND, 0, 1222, 677);
     }
 
 
@@ -686,21 +689,21 @@ void collectMinion() {
     std::cout << "[" << getCurrentTimestamp() << "] Colleziono minion" << std::endl;
 
     // Clicca sul bottone ascensione
-    mouseClick(idleSlayerHwnd, 0, 95, 90);
+    mouseClick(gameHWND, 0, 95, 90);
     std::this_thread::sleep_for(std::chrono::milliseconds(400));
 
     // Clicca Ascension Tab
     //
-    mouseClick(idleSlayerHwnd, 0, 93, 680);
+    mouseClick(gameHWND, 0, 93, 680);
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
     // Clicca sulla tab minion
-    mouseClick(idleSlayerHwnd, 0, 332, 680);
+    mouseClick(gameHWND, 0, 332, 680);
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
     // Mouse in mezzo alla tab minion
     //
-    mouseMove(idleSlayerHwnd, 311, 421);
+    mouseMove(gameHWND, 311, 421);
     std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
     mouseWheelScroll(10);
@@ -710,25 +713,25 @@ void collectMinion() {
 
     // Finchè la scrollbar non è in fondo, scorro e vedo se il minion attuale ha tasto verde
     //
-    while (!isRectangleColor(idleSlayerHwnd, 612, 638, 612, 638, 0xffffff)) {
+    while (!isRectangleColor(gameHWND, 612, 638, 612, 638, 0xffffff)) {
 
-        mouseMove(idleSlayerHwnd, 498, 190);
+        mouseMove(gameHWND, 498, 190);
         std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
         // Controllo primo punto possibile casella verde (quello se ce bonus giornaliero)
         //
-        if (isRectangleColor(idleSlayerHwnd, 498, 180, 498, 180, 0x22a310, 5)) {
+        if (isRectangleColor(gameHWND, 498, 180, 498, 180, 0x22a310, 5)) {
             mouseClick(0, 498, 180, 2, 200);
             std::cout << "[" << getCurrentTimestamp() << "] Click primo minion" << std::endl;
         }
         else {
 
-            mouseMove(idleSlayerHwnd, 498, 190);
+            mouseMove(gameHWND, 498, 190);
             std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
             // Controllo secondo punto possibile (non ce bonus giornaliero)
             //
-            if (isRectangleColor(idleSlayerHwnd, 498, 180, 498, 180, 0x22a310, 5)) {
+            if (isRectangleColor(gameHWND, 498, 180, 498, 180, 0x22a310, 5)) {
                 mouseClick(0, 498, 180, 2, 200);
                 std::cout << "[" << getCurrentTimestamp() << "] Click primo minion" << std::endl;
             }
@@ -744,18 +747,18 @@ void collectMinion() {
 
     std::cout << "[" << getCurrentTimestamp() << "] Fine scrollbar, claimo ultimi minions" << std::endl;
 
-    mouseClick(idleSlayerHwnd, 0, 500, 244, 2, 200);
+    mouseClick(gameHWND, 0, 500, 244, 2, 200);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-    mouseClick(idleSlayerHwnd, 0, 499, 397, 2, 200);
+    mouseClick(gameHWND, 0, 499, 397, 2, 200);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
-    mouseClick(idleSlayerHwnd, 0, 498, 547, 2, 200);
+    mouseClick(gameHWND, 0, 498, 547, 2, 200);
     std::this_thread::sleep_for(std::chrono::milliseconds(200));
 
 
     // Controlla se il bonus giornaliero è disponibile
-    if (isRectangleColor(idleSlayerHwnd, 306, 186, 306, 186, 0xffffff)) {
+    if (isRectangleColor(gameHWND, 306, 186, 306, 186, 0xffffff)) {
 
         // Clicca su "Claim All"
         //mouseClick(0, 320, 280);
@@ -766,7 +769,7 @@ void collectMinion() {
 
 
         // Richiedi il bonus giornaliero
-        mouseClick(idleSlayerHwnd, 0, 306, 186);
+        mouseClick(gameHWND, 0, 306, 186);
         std::this_thread::sleep_for(std::chrono::milliseconds(2000));
 
         std::cout << "[" << getCurrentTimestamp() << "] Collezionati minion con Daily Bonus, ricontrollo se posso claimare" << std::endl;
@@ -775,7 +778,7 @@ void collectMinion() {
     }
     else {
         // Clicca "Exit"
-        mouseClick(idleSlayerHwnd, 0, 570, 694);
+        mouseClick(gameHWND, 0, 570, 694);
     }
 
 
@@ -788,24 +791,24 @@ void claimQuests()
     std::cout << "[" << getCurrentTimestamp() << "] Claimo quests" << std::endl;
 
     // Se NEGOZIO APERTO
-    if (isRectangleColor(idleSlayerHwnd, 1203, 687, 1203, 687, 0x1010a6, 5)) {
+    if (isRectangleColor(gameHWND, 1203, 687, 1203, 687, 0x1010a6, 5)) {
 
         // Stampa il messaggio di log con timestamp
         std::cout << "[" << getCurrentTimestamp() << "] Negozio Aperto" << std::endl;
 
         // Clicca sulla scheda delle quest
-        mouseClick(idleSlayerHwnd, 0, 1004, 690);
+        mouseClick(gameHWND, 0, 1004, 690);
         std::this_thread::sleep_for(std::chrono::milliseconds(50));
 
         // Stampa il messaggio di log con timestamp
         std::cout << "[" << getCurrentTimestamp() << "] Seleziono terza tab" << std::endl;
 
         // Clicca in cima alla barra di scorrimento
-        mouseClick(idleSlayerHwnd, 0, 1252, 273, 3);
+        mouseClick(gameHWND, 0, 1252, 273, 3);
 		std::this_thread::sleep_for(std::chrono::milliseconds(500));
 
         // Controlla se non c'è la barra di scorrimento (scrollbar)
-        if (isRectangleColor(idleSlayerHwnd, 1257, 340, 1257, 340, 0x11AA23)) {
+        if (isRectangleColor(gameHWND, 1257, 340, 1257, 340, 0x11AA23)) {
 
             std::cout << "[" << getCurrentTimestamp() << "] Non ho trovato barra di scorrimento, ERRORE, non dovrebbe esserci il caso" << std::endl;
         }
@@ -821,11 +824,11 @@ void claimQuests()
 
         // Metto mouse in posizione hover al primo elemento
         //
-        mouseMove(idleSlayerHwnd, 1193, 278);
+        mouseMove(gameHWND, 1193, 278);
 
         // Cerca caselle verdi (indicanti un acquisto possibile)
         while (true) {
-            if (!isRectangleColor(idleSlayerHwnd, 1193, 278, 1193, 278, 0x22a310, 9)) {
+            if (!isRectangleColor(gameHWND, 1193, 278, 1193, 278, 0x22a310, 9)) {
 
                 //std::cout << "[" << getCurrentTimestamp() << "] No caselle verdi, scorro" << std::endl;
 
@@ -835,7 +838,7 @@ void claimQuests()
                 std::this_thread::sleep_for(std::chrono::milliseconds(150));
 
                 // Verifica se la barra di scorrimento non è grigia (fine dello scorrimento)
-                if (!isRectangleColor(idleSlayerHwnd, 1253, 643, 1253, 643, 0xd6d6d6)) {
+                if (!isRectangleColor(gameHWND, 1253, 643, 1253, 643, 0xd6d6d6)) {
                     std::cout << "[" << getCurrentTimestamp() << "] Fine lista oggetti, claimo le ultime quest" << std::endl;
 
                     // Scrollo bene fino in fondo
@@ -844,11 +847,11 @@ void claimQuests()
 
                     // Click sugli ultimi oggetti della pagina
                     //
-                    mouseClick(idleSlayerHwnd, 0, 1192, 335);
+                    mouseClick(gameHWND, 0, 1192, 335);
                     std::this_thread::sleep_for(std::chrono::milliseconds(400));
-                    mouseClick(idleSlayerHwnd, 0, 1192, 449);
+                    mouseClick(gameHWND, 0, 1192, 449);
                     std::this_thread::sleep_for(std::chrono::milliseconds(400));
-                    mouseClick(idleSlayerHwnd, 0, 1192, 558);
+                    mouseClick(gameHWND, 0, 1192, 558);
 
                     break; // Esce dal ciclo se non c'è più la barra di scorrimento
                 }
@@ -857,7 +860,7 @@ void claimQuests()
             }
             else {
                 // Se trova una casella verde, clicca su di essa per comprare
-               // mouseClick(idleSlayerHwnd, 0, 1193, 278, 5);
+               // mouseClick(gameHWND, 0, 1193, 278, 5);
                 std::cout << "[" << getCurrentTimestamp() << "] Casella verde, compro oggetto" << std::endl;
             }
         }
@@ -874,7 +877,7 @@ void PrintMousePositionAndColor() {
     POINT p;
     if (GetCursorPos(&p)) {
         RECT rect;
-        if (GetWindowRect(idleSlayerHwnd, &rect)) {
+        if (GetWindowRect(gameHWND, &rect)) {
             // Calcola le coordinate relative alla finestra
             int rx = p.x - rect.left;
             int ry = p.y - rect.top;
@@ -914,53 +917,23 @@ void coordinate() {
     }
 }
 
+
+
+
 int main() {
 
-    idleSlayerHwnd = findGameWindow(); // Trova la finestra del gioco, cambia il nome se necessario
-    if (idleSlayerHwnd == NULL) {
+    gameHWND = findGameWindow(); // Trova la finestra del gioco, cambia il nome se necessario
+    if (gameHWND == NULL) {
         std::cerr << "Impossibile trovare la finestra del gioco." << std::endl;
         return 1;
     }
 
-
-
-    
+    SetForegroundWindow(gameHWND);
 
     coordinate(); // Esegui la funzione per stampare le coordinate e il colore
 
-
-    // Top left
-    if (isRectangleColor(idleSlayerHwnd, 443, 560, 443, 560, 0x007E00)) {
-        mouseMove(idleSlayerHwnd, 840, 560);
-        //mouseClickDrag(idleSlayerHwnd, 840, 560, 450, 560);
-        return 0;
-    }
-
-    // Bottom left
-    if (isRectangleColor(idleSlayerHwnd, 443, 620, 443, 620, 0x007E00)) {
-        mouseMove(idleSlayerHwnd, 840, 620);
-       // mouseClickDrag(idleSlayerHwnd, 840, 620, 450, 620);
-        return 0;
-    }
-
-    // Top right
-    if (isRectangleColor(idleSlayerHwnd, 850, 560, 850, 560, 0x007E00)) {
-        mouseMove(idleSlayerHwnd, 450, 560);
-        //mouseClickDrag(idleSlayerHwnd, 450, 560, 840, 560);
-        return 0;
-    }
-
-    // Bottom right
-    if (isRectangleColor(idleSlayerHwnd, 850, 620, 850, 620, 0x007E00)) {
-        mouseMove(idleSlayerHwnd, 450, 620);
-        //mouseClickDrag(idleSlayerHwnd, 450, 620, 840, 620);
-        return 0;
-    }
-    
-    
-    
-
-
+   
 
     return 0;
+
 }

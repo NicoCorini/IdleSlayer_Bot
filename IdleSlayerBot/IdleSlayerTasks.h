@@ -24,5 +24,6 @@ void buyEquipment();
 void buyUpgrade();
 void collectMinion();
 void claimQuests();
+void ascend();
 
 #endif // IDLESLAYERTASKS_H
