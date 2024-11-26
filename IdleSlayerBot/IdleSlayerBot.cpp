@@ -65,6 +65,7 @@ int main()
 	// get current time chrono
 	auto lastBuyEquipment = std::chrono::steady_clock::now();
 	auto lastAscend = std::chrono::steady_clock::now();
+	auto lastRage = std::chrono::steady_clock::now();
 	
 
 	while (true)
@@ -127,6 +128,16 @@ int main()
 				bonusStage();
 				jumpState = true;
 
+			}
+
+			// Rage
+			//
+			if (std::chrono::duration_cast<std::chrono::seconds>(std::chrono::steady_clock::now() - lastRage).count() >= 630)
+			{
+				jumpState = false;
+				rage();
+				jumpState = true;
+				lastRage = std::chrono::steady_clock::now();
 			}
 
 			// Silver Box Collect

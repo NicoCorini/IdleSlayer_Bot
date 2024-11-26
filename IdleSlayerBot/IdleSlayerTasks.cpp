@@ -762,3 +762,16 @@ void ascend()
     std::this_thread::sleep_for(std::chrono::milliseconds(250));
 
 }
+
+void rage()
+{
+    // Stampa il messaggio di log con timestamp
+    std::cout << "[" << getCurrentTimestamp() << "] Rage!" << std::endl;
+
+    mouseClick(gameHWND, 0, 1106, 150);
+
+
+    std::this_thread::sleep_for(std::chrono::seconds(11));
+
+    std::cout << "[" << getCurrentTimestamp() << "] Fine Rage!" << std::endl;
+}
