@@ -727,6 +727,10 @@ void claimQuests()
 
 void ascend()
 {
+
+	// Stampa il messaggio di log con timestamp
+	std::cout << "[" << getCurrentTimestamp() << "] Ascensione!" << std::endl;
+
     /*
     Coordinate relative: (105, 98), Colore: 0xffffff
     Coordinate relative: (92, 689), Colore: 0xffffff
