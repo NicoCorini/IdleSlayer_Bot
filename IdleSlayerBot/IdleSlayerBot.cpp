@@ -95,9 +95,9 @@ int main()
 
 		if (!paused)
 		{
-			// Ascension every 30 minutes
+			// Ascension every 90 minutes
 			//
-			if (std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now() - lastAscend).count() >= 30)
+			if (std::chrono::duration_cast<std::chrono::minutes>(std::chrono::steady_clock::now() - lastAscend).count() >= 90)
 			{
 				jumpState = false;
 				ascend();
