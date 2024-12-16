@@ -149,7 +149,7 @@ void chestHunt() {
 
             // Utilizzo Saver
             //
-            if (count == 1 && saverX > 0) {
+            if (count == 2 && saverX > 0) {
                 mouseClick(gameHWND, 0, saverX + 33, saverY - 23);
                 std::this_thread::sleep_for(std::chrono::milliseconds(1500));
             }
@@ -456,18 +456,6 @@ void buyUpgrade() {
     int y = 170;
 
     while (true) {
-
-        // TODO: Random Box Magnet Vertical Avoid 
-        //
-        /*
-        if ((isRectangleColor(gameHWND, 846, 207, 846, 207, 0x37e7ff) && isRectangleColor(gameHWND, 880, 207, 880, 207, 0x1bb4f4)) ||
-            (isRectangleColor(gameHWND, 845, 305, 845, 305, 0x37e7ff) && isRectangleColor(gameHWND, 880, 305, 880, 305, 0xff78e4))) {
-
-            std::cout << "[" << getCurrentTimestamp() << "] Trovato Random Box Magnet Upgrade, lo salto" << std::endl;
-
-            y += 96;
-        }
-        */
 
         // Vertical Magnet
         if (

@@ -109,7 +109,8 @@ int main()
 			//
 			if (isRectangleColor(gameHWND, 318, 515, 318, 515, 0x3568a7, 10) &&
 				isRectangleColor(gameHWND, 410, 420, 410, 420, 0x3568a7, 10) &&
-				isRectangleColor(gameHWND, 649, 688, 649, 688, 0xffffff, 2))
+				(isRectangleColor(gameHWND, 661, 674, 661, 674, 0xffffff, 2) || isRectangleColor(gameHWND, 661, 674, 661, 674, 0xf2eada, 2))
+				)
 			{
 
 				jumpState = false;
